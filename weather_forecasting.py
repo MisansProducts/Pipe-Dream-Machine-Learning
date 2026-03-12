@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
 load_dotenv()
 
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -100,13 +103,13 @@ for city_name, city_data in df.items():
 
     print(f"Training samples: {X.shape[0]}")
 
-    X_tensor = torch.tensor(X, dtype=torch.float32)
-    y_tensor = torch.tensor(y, dtype=torch.float32).unsqueeze(-1)
+    X_tensor = torch.tensor(X, dtype=torch.float32).to(device)
+    y_tensor = torch.tensor(y, dtype=torch.float32).unsqueeze(-1).to(device)
 
     train_dataset = TensorDataset(X_tensor, y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
 
-    model = LSTMModel()
+    model = LSTMModel().to(device)
 
     criterion = nn.HuberLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
@@ -122,6 +125,8 @@ for city_name, city_data in df.items():
         train_loss = 0
 
         for xb, yb in train_loader:
+            xb = xb.to(device)
+            yb = yb.to(device)
             optimizer.zero_grad()
 
             outputs = model(xb)
@@ -153,8 +158,8 @@ for city_name, city_data in df.items():
 
     with torch.no_grad():
         for i in range(1440):
-            input_seq = torch.tensor(last_sequence, dtype=torch.float32).unsqueeze(0)
-            pred = model(input_seq).numpy()[0, 0]
+            input_seq = torch.tensor(last_sequence, dtype=torch.float32).unsqueeze(0).to(device)
+            pred = model(input_seq).cpu().detach().numpy()[0, 0]
 
             predictions.append(pred)
 
