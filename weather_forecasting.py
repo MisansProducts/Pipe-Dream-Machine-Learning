@@ -65,7 +65,7 @@ for city_name, city_data in df.items():
 
     data = city_data.copy()
 
-    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    data['timestamp'] = pd.to_datetime(data['timestamp'], format='mixed')
     data = data.sort_values('timestamp')
     data = data.set_index('timestamp')
     data = data[['tempC']]
