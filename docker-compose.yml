@@ -1,0 +1,10 @@
+services:
+  weather-training:
+    build: .
+    image: pipe-dream-weather-training:v1.0
+    container_name: weather-training
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME:-weather_db}
+    volumes:
+      - ./models:/app/models
