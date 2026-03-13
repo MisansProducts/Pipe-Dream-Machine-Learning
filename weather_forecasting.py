@@ -205,7 +205,9 @@ def run_training():
 
 if __name__ == "__main__":
     print("Weather Training Script Started")
-    print(f"Will run weekly on Monday at {TRAINING_HOUR}:00 AM")
+    print(f"Will run on startup and then weekly on Monday at {TRAINING_HOUR}:00 AM")
+    
+    run_training()
 
     while True:
         now = datetime.now()
